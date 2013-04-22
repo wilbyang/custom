@@ -1,0 +1,7 @@
+name = 私人用drupal组件
+description = 私人用drupal组件
+package = 私人用
+core = 7.x
+files[] = my.test
+
+
