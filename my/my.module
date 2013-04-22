@@ -69,9 +69,20 @@ function _my_gallary_literal_filter_settings($form, $form_state, $filter, $forma
  * once any necessary substitutions have taken place. The example just replaces
  * foo with our custom defined string in the settings page.
  */
+function _callback ($matches) {
+	$string = $matches[1];
+	$arr = explode("\n", $string);
+	$gallay_html = "<ul id='id_of_list'>";
+	foreach ($arr as $value) {
+		list($thumbnail_url, $oringal_url, $caption) = explode("|", $value);
+		$gallay_html .= "<li><img src='$oringal_url' alt='$caption' data-frame='$oringal_url' data-description='$caption' /></li>";
+	}
+		$gallay_html .= "</ul>";
+	return $gallay_html;
+}
 function _my_gallary_literal_process($text, $filter, $format) {
-  $replacement = isset($filter->settings['gallary_literal']) ? $filter->settings['gallary_literal'] : 'bar';
-  return str_replace('foo', $replacement, $text);
+  //$replacement = isset($filter->settings['gallary_literal']) ? $filter->settings['gallary_literal'] : 'bar';
+  return preg_replace_callback("/\{\{(.*)\}\}/s", "_callback", $text);
 }
 
 
