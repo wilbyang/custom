@@ -1,0 +1,5 @@
+name = 旅行线路
+description = 旅行线路
+core = 7.x
+dependencies[] = entity
+

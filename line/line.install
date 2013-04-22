@@ -1,0 +1,55 @@
+<?php 
+/**
+ * Implements hook_schema().
+ */
+function line_schema() {
+  $schema['line'] = array(
+    'description' => '旅行线路',
+    'fields' => array(
+      'lid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => '主键',
+      ),
+      'src' => array(
+        'description' => '出发地',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'des' => array(
+        'description' => '目的地',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'price' => array(
+        'description' => '价钱',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'duration' => array(
+        'type' => 'int',
+      	'description' => '天数',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'created' => array(
+        'description' => '创建时间',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'changed' => array(
+        'description' => '更新时间',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('lid'),
+  );
+  return $schema;
+}
