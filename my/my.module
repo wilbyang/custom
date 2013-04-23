@@ -62,6 +62,11 @@ function _my_gallary_literal_filter_settings($form, $form_state, $filter, $forma
   return $settings;
 }
 
+
+function my_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+	dsm($entity_type);
+}
+
 /**
  * Foo filter process callback.
  *
@@ -75,7 +80,10 @@ function _callback ($matches) {
 	$gallay_html = "<ul id='id_of_list'>";
 	foreach ($arr as $value) {
 		list($thumbnail_url, $oringal_url, $caption) = explode("|", $value);
-		$gallay_html .= "<li><img src='$oringal_url' alt='$caption' data-frame='$oringal_url' data-description='$caption' /></li>";
+		$caption_en = to_en($caption);
+		//拼接字符串要小心，不然英文里的地名里的单引号，如ya'an，会妨碍解析
+		//$gallay_html .= "<li><img src='$oringal_url' alt='$caption' data-frame='$oringal_url' data-description='$caption_en' /></li>";
+		$gallay_html .= '<li><img src="'.$oringal_url.'" alt="'.$caption.'" data-frame="'.$oringal_url.'" data-description="'.$caption_en.'" /></li>';
 	}
 		$gallay_html .= "</ul>";
 	return $gallay_html;
@@ -84,7 +92,32 @@ function _my_gallary_literal_process($text, $filter, $format) {
   //$replacement = isset($filter->settings['gallary_literal']) ? $filter->settings['gallary_literal'] : 'bar';
   return preg_replace_callback("/\{\{(.*)\}\}/s", "_callback", $text);
 }
-
+function to_en($value,$from="auto",$to="en") {
+	#首先对要翻译的文字进行 urlencode 处理
+	$value_code=urlencode($value);
+	#您注册的API Key
+	$appid="4qZDngoDvMDriahEhcjEfnq9";
+	#生成翻译API的URL GET地址
+	$languageurl = "http://openapi.baidu.com/public/2.0/bmt/translate?client_id=" . $appid ."&q=" .$value_code. "&from=".$from."&to=".$to;
+	$text=json_decode(language_text($languageurl));
+	$text = $text->trans_result;
+	return $text[0]->dst;
+}
+#获取目标URL所打印的内容
+function language_text($url) {
+	if(!function_exists('file_get_contents')) {
+		$file_contents = file_get_contents($url);
+	} else {
+		$ch = curl_init();
+		$timeout = 10;
+		curl_setopt ($ch, CURLOPT_URL, $url);
+		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+		$file_contents = curl_exec($ch);
+		curl_close($ch);
+	}
+	return $file_contents;
+}
 
 /**
  * Filter tips callback for foo filter.
