@@ -71,7 +71,6 @@ function _my_gallary_literal_filter_settings($form, $form_state, $filter, $forma
 
 
 function my_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-	dsm($entity_type);
 }
 
 /**
