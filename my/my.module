@@ -70,7 +70,11 @@ function _my_gallary_literal_filter_settings($form, $form_state, $filter, $forma
 }
 
 
-function my_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+function my_node_presave($node) {
+	if ($node->is_new && $node->type == "pic_news") {
+		$text = $node->field_net_imgs['und'][0]['value'];
+		$node->field_net_imgs['und'][0]['value'] =  "{{" . preg_replace_callback("/\{\{(.*)\}\}/s", "_callback2", $text) . "}}";
+	}
 }
 
 /**
@@ -80,19 +84,28 @@ function my_field_presave($entity_type, $entity, $field, $instance, $langcode, &
  * once any necessary substitutions have taken place. The example just replaces
  * foo with our custom defined string in the settings page.
  */
-function _callback ($matches) {
-	$string = $matches[1];
+function _callback($matches) {
+	$string = trim($matches[1]);
 	$arr = explode("\n", $string);
 	$gallay_html = "<ul id='id_of_list'>";
 	foreach ($arr as $value) {
-		list($thumbnail_url, $oringal_url, $caption) = explode("|", $value);
-		$caption_en = to_en($caption);
-		//拼接字符串要小心，不然英文里的地名里的单引号，如ya'an，会妨碍解析
-		//$gallay_html .= "<li><img src='$oringal_url' alt='$caption' data-frame='$oringal_url' data-description='$caption_en' /></li>";
+		list($thumbnail_url, $oringal_url, $caption, $caption_en) = explode("|", $value);
 		$gallay_html .= '<li><img src="'.$oringal_url.'" alt="'.$caption.'" data-frame="'.$oringal_url.'" data-description="'.$caption_en.'" /></li>';
 	}
 		$gallay_html .= "</ul>";
 	return $gallay_html;
+}
+function _callback2($matches) {
+	$string = trim($matches[1]);
+	$text = "";
+	$arr = explode("\n", $string);
+	foreach ($arr as $value) {
+		list($thumbnail_url, $oringal_url, $caption) = explode("|", $value);
+		$caption_en = to_en($caption);
+		$text_ = trim($value) . "|" . trim($caption_en). "\n";
+		$text .= $text_;
+	}
+	return $text;
 }
 function _my_gallary_literal_process($text, $filter, $format) {
   //$replacement = isset($filter->settings['gallary_literal']) ? $filter->settings['gallary_literal'] : 'bar';
